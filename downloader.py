@@ -22,7 +22,7 @@ class ModelDownloader:
         
         for filename in files_to_download:
             try:
-                print(f"正在下载 {model_name} 的 {filename}...")
+                print(f"Downloading {filename} in {model_name}...")
                 file_path = hf_hub_download(
                     repo_id=repo_id,
                     filename=filename,
@@ -30,10 +30,10 @@ class ModelDownloader:
                     local_files_only=False
                 )
                 downloaded_files[filename] = file_path
-                print(f"✓ {filename} 下载完成")
+                print(f"✓ {filename} downloaded")
                 
             except Exception as e:
-                print(f"✗ 下载 {filename} 失败: {e}")
+                print(f"✗ [ERROR] download {filename} failed: {e}")
                 
         return downloaded_files
     
@@ -61,6 +61,6 @@ if __name__ == "__main__":
     # 下载sundial
     sundial_files = downloader.download_sundial()
     
-    print("下载完成的文件:")
+    print("Downloaded files:")
     print("TimerXL:", timerxl_files)
     print("Sundial:", sundial_files)

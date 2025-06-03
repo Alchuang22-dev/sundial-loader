@@ -39,8 +39,8 @@ class LLM:
         self.config = BaseSeqConfig.from_json(str(config_path))
         
         # 调试：打印注册的模型
-        print(f"已注册的模型类型: {list(SequenceModel._registry.keys())}")
-        print(f"配置中的模型类型: {self.config.model_type}")
+        print(f"models registered: {list(SequenceModel._registry.keys())}")
+        print(f"models under config: {self.config.model_type}")
         
         self.model = SequenceModel.from_config(self.config)
         self.model.load_weights(str(weights_path))

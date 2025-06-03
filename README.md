@@ -47,6 +47,7 @@ thuTL/
 ├── engine/
 │   ├── __init__.py
 │   └── llm_engine.py       # Main LLM engine
+├── integration/            # Apache IoTDB ports
 └── utils/
     ├── __init__.py
     └── model_loader.py      # Model download utilities
