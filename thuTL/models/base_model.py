@@ -3,7 +3,7 @@ import torch.nn as nn
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Union
 from safetensors import safe_open
-from ..config.configuration import BaseSeqConfig
+from base_config import BaseSeqConfig
 
 class SequenceModel(ABC, nn.Module):
     def __init__(self, config: BaseSeqConfig):

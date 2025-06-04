@@ -2,15 +2,15 @@ import torch
 import torch.nn as nn
 from typing import Optional
 
-from .base_model import SequenceModel
+from ..base_model import SequenceModel
 from .attention import TimerAttention
-from ..config.configuration import TimerConfig
+from .configuration import TimerConfig
 
 class TimerBlock(nn.Module):
     """Timer Transformer Block"""
     def __init__(self, config: TimerConfig):
         super().__init__()
-        self.attention = TimerAttention(config)  # 使用专门的TimerAttention
+        self.attention = TimerAttention(config)
         self.feed_forward = nn.Sequential(
             nn.Linear(config.hidden_size, config.intermediate_size),
             nn.SiLU(),
@@ -32,11 +32,13 @@ class TimerBlock(nn.Module):
 
 @SequenceModel.register("timer")
 class TimerXL(SequenceModel):
+    config_class = TimerConfig  # 指定配置类
+    
     def __init__(self, config: TimerConfig):
         super().__init__(config)
         
     def build_layers(self):
-        # 输入嵌入层：将时序值映射到隐藏维度
+        # 输入嵌入层
         self.input_embedding = nn.Linear(1, self.config.hidden_size)
         
         # Transformer层
@@ -48,7 +50,7 @@ class TimerXL(SequenceModel):
         self.output_norm = nn.LayerNorm(self.config.hidden_size)
         self.output_head = nn.Linear(
             self.config.hidden_size, 
-            self.config.output_token_lens[0]  # 预测长度
+            self.config.output_token_lens[0]
         )
         
         # 权重初始化
@@ -61,21 +63,18 @@ class TimerXL(SequenceModel):
                 torch.nn.init.zeros_(module.bias)
     
     def forward(self, input_ids: torch.Tensor, **kwargs) -> torch.Tensor:
-        # input_ids: [batch_size, seq_len]
         batch_size, seq_len = input_ids.shape
         
-        # 嵌入：[batch_size, seq_len, 1] -> [batch_size, seq_len, hidden_size]
+        # 嵌入
         x = self.input_embedding(input_ids.unsqueeze(-1))
         
         # 通过Transformer层
         for layer in self.layers:
             x = layer(x)
         
-        # 输出归一化
+        # 输出
         x = self.output_norm(x)
-        
-        # 预测：使用最后一个时间步的表示
-        last_hidden = x[:, -1, :]  # [batch_size, hidden_size]
-        predictions = self.output_head(last_hidden)  # [batch_size, pred_len]
+        last_hidden = x[:, -1, :]
+        predictions = self.output_head(last_hidden)
         
         return predictions
