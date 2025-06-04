@@ -1,4 +1,5 @@
 # Time Series Model loader
+> 2025/06/04
 TimerXL and Sundial Loader for IoTDB (under development)
 
 the loader could be imported as `thuTL`
@@ -35,15 +36,17 @@ print(f"Prediction: {result}")
 ```angelscript
 thuTL/
 ├── __init__.py
-├── config/
-│   ├── __init__.py
-│   └── configuration.py      # Configuration classes
+├── config/    # discarded
 ├── models/
 │   ├── __init__.py
 │   ├── base_model.py        # Base model class
 │   ├── attention.py         # Attention mechanisms
-│   ├── timerxl.py          # TimerXL implementation
-│   └── sundial.py          # Sundial implementation
+│   ├── timerxl/          # TimerXL implementation
+│   │   ├── __init__.py
+│   │   ├── attention.py
+│   │   ├── configuration.py
+│   │   └── modeling_timerxl.py
+│   └── sundial/          # Sundial implementation
 ├── engine/
 │   ├── __init__.py
 │   └── llm_engine.py       # Main LLM engine
@@ -65,7 +68,7 @@ thuTL/
     - Key Features: Diffusion sampling, flow transformations, time-step embeddings
 ## Configuration
 The library automatically loads model configurations from config.json files:
-
+The configurations would be stored in `models/model_name/configuration.py`
 ```python
 # Base configuration shared by all models
 @dataclass
@@ -128,6 +131,47 @@ llm.apply_model(lambda model: print(f"Parameters: {sum(p.numel() for p in model.
 ```python
 # Load from local path
 local_llm = LLM(model="./path/to/model", task="generate")
+```
+### Loading Model from Internet
+```python
+try:
+        llm_with_uri = LLM(
+            model="custom_model",
+            task="generate",
+            uri="https://example.com/models/timer"  
+        )
+    except Exception as e:
+
+# or
+try:
+        llm_direct_uri = LLM(
+            model="https://example.com/models/sundial",
+            task="generate"
+        )
+    except Exception as e:
+```
+### Generate Function
+```python
+from thuTL import LLM, IoTDBLLM, create_timer_llm, create_sundial_llm, create_llm_from_uri
+
+# IoTDBLLM will fix the task config
+    try:
+        iotdb_llm = IoTDBLLM(model="timer")
+        
+        sample_data = torch.randn(96)
+        prediction = iotdb_llm.forecast(sample_data)    
+    except Exception as e:
+    
+# or use "quick create" function
+    try:
+        # TimerXL
+        timer_llm = create_timer_llm()
+        timer_pred = timer_llm.forecast(torch.randn(96))
+        
+        # Sundial
+        sundial_llm = create_sundial_llm()
+        sundial_pred = sundial_llm.forecast(torch.randn(16))     
+    except Exception as e:
 ```
 ## Model Architecture Details
 ### Attention Mechanism

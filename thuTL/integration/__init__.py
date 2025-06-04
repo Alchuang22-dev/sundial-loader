@@ -1,3 +1,3 @@
-from .iotdb_intergration import IoTDBModelAdapter, IoTDBInferenceEngine
+from .iotdb_integration import IoTDBModelAdapter, IoTDBInferenceEngine
 
 __all__ = ["IoTDBModelAdapter", "IoTDBInferenceEngine"]
